@@ -9,3 +9,13 @@
   (when (pcre-match-string "\\A(\\d+)-(\\d+)-(\\d+)\\z" str)
     (match-string 1 str))) ;; => 012
 ```
+
+## Interfaces
+
+##### `(pcre-string-match regexp string)`
+
+Works like `string-match`. This function sets `match-data`.
+
+##### `(pcre-string-match-p regexp string)`
+
+Works like `string-match-p`. This function does not set `match-data`.
