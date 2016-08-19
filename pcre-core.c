@@ -44,7 +44,7 @@ retrieve_string(emacs_env *env, emacs_value str, ptrdiff_t *size)
 }
 
 static emacs_value
-Fpcre_match_string(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+pcre_match_string(emacs_env *env, emacs_value args[], bool savedata)
 {
 	ptrdiff_t reg_size;
 	char *regexp = retrieve_string(env, args[0], &reg_size);
@@ -67,17 +67,18 @@ Fpcre_match_string(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *da
 	int regno = pcre_exec(re, NULL, str, (size_t)str_size - 1, 0, 0, match, MAX_MATCH);
 	free(str);
 
-	if (regno < 0) {
-		pcre_free(re);
+	pcre_free(re);
+
+	if (regno < 0)
 		return env->intern(env, "nil");
-	}
+
+	if (!savedata)
+		return env->intern(env, "t");
 
 	size_t len = regno * 2;
 	emacs_value *match_args = malloc(len * sizeof(emacs_value));
-	if (match_args == NULL) {
-		pcre_free(re);
+	if (match_args == NULL)
 		return env->intern(env, "nil");
-	}
 
 	for (int i = 0; i < regno; ++i) {
 		size_t idx = i * 2;
@@ -89,9 +90,21 @@ Fpcre_match_string(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *da
 	emacs_value Qset_match_data = env->intern(env, "set-match-data");
 	emacs_value set_match_data_args[] = {v};
 	env->funcall(env, Qset_match_data, 1, set_match_data_args);
-	pcre_free(re);
 
 	return env->intern(env, "t");
+}
+
+static emacs_value
+Fpcre_match_string(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+	return pcre_match_string(env, args, true);
+}
+
+
+static emacs_value
+Fpcre_match_string_p(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+	return pcre_match_string(env, args, false);
 }
 
 static void
@@ -123,6 +136,7 @@ emacs_module_init(struct emacs_runtime *ert)
 	bind_function (env, lsym, env->make_function(env, amin, amax, csym, doc, data))
 
 	DEFUN("pcre-match-string", Fpcre_match_string, 2, 2, NULL, NULL);
+	DEFUN("pcre-match-string-p", Fpcre_match_string_p, 2, 2, NULL, NULL);
 #undef DEFUN
 
 	provide(env, "pcre-core");
