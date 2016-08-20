@@ -14,16 +14,20 @@
 
 ##### `(pcre-string-match regexp string)`
 
-Works like `string-match`. This function sets `match-data`.
+Works like `string-match`.
 
 ##### `(pcre-string-match-p regexp string)`
 
-Works like `string-match-p`. This function does not set `match-data`.
+Works like `string-match-p`.
 
 ##### `(pcre-looking-at regxp)`
 
-Works like `looking-at`. This function sets `match-data`.
+Works like `looking-at`.
 
 ##### `(pcre-looking-at-p regxp)`
 
-Works like `looking-at`. This function does not set `match-data`.
+Works like `looking-at-p`.
+
+##### `(pcre-re-search-forward regxp)`
+
+Works like `re-search-forward`.
