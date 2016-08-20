@@ -57,4 +57,23 @@
     (goto-char (point-min))
     (should (pcre-looking-at-p "a(b{1,})c$"))))
 
+(ert-deftest re-search-forward ()
+  "PCRE re-search-forward"
+  (with-temp-buffer
+    (insert "foo bar baz")
+    (goto-char (point-min))
+    (pcre-re-search-forward "b(..)")
+    (save-match-data
+      (should (looking-back "bar")))
+    (should (string= (match-string 0) "bar"))
+    (should (string= (match-string 1) "ar"))))
+
+(ert-deftest re-search-forward-error ()
+  "PCRE re-search-forward raises error without non-error argument when regexp
+is not matched"
+  (with-temp-buffer
+    (insert "foo bar baz")
+    (goto-char (point-min))
+    (should-error (pcre-re-search-forward "hoge"))))
+
 ;;; test.el ends here
