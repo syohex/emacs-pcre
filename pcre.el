@@ -25,16 +25,42 @@
 ;;; Code:
 
 (require 'pcre-core)
+(require 'cl-lib)
+
+(defconst pcre--flags
+  '((ignorecase . 1)  ;; PCRE_CASELESS
+    (extended . 2)    ;; PCRE_EXTENDED
+    (multiline . 4))) ;; PCRE_MULTILINE
+
+(defun pcre--flags (flags)
+  (cl-loop with ret = 0
+           for f in flags
+           when (assoc-default f pcre--flags)
+           sum it into ret
+           finally return ret))
+
+(defun pcre-match-string (regexp str)
+  (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
+    (pcre--core-match-string regexp str flags)))
+
+(defun pcre-match-string-p (regexp str)
+  (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
+    (pcre--core-match-string-p regexp str flags)))
 
 (defun pcre-looking-at (regexp)
-  (pcre-match-string regexp (buffer-substring-no-properties (point) (point-max)) t))
+  (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
+    (pcre--core-match-string
+     regexp (buffer-substring-no-properties (point) (point-max)) flags t)))
 
 (defun pcre-looking-at-p (regexp)
-  (pcre-match-string-p regexp (buffer-substring-no-properties (point) (point-max)) t))
+  (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
+    (pcre--core-match-string-p
+     regexp (buffer-substring-no-properties (point) (point-max)) flags t)))
 
 (defun pcre-re-search-forward (regexp &optional bound non-error count)
   (let* ((str (buffer-substring-no-properties (point) (or bound (point-max))))
-         (matched (pcre-match-string regexp str t (or count -1))))
+         (flags (if case-fold-search (pcre--flags '(ignorecase)) 0))
+         (matched (pcre--core-match-string regexp str 0 t (or count -1))))
     (if (not matched)
         (unless not-error
           (error "Search failed %s" regexp))
