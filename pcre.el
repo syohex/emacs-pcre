@@ -32,6 +32,15 @@
 (defun pcre-looking-at-p (regexp)
   (pcre-match-string-p regexp (buffer-substring-no-properties (point) (point-max)) t))
 
+(defun pcre-re-search-forward (regexp &optional bound non-error count)
+  (let* ((str (buffer-substring-no-properties (point) (or bound (point-max))))
+         (matched (pcre-match-string regexp str t (or count -1))))
+    (if (not matched)
+        (unless not-error
+          (error "Search failed %s" regexp))
+      (goto-char (match-end 0))
+      (point))))
+
 (provide 'pcre)
 
 ;;; pcre.el ends here

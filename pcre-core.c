@@ -53,11 +53,21 @@ pcre_match_string(emacs_env *env, ptrdiff_t nargs, emacs_value args[], bool save
 	int erroff = 0;
 	const char *errstr = NULL;
 	bool buffer;
+	int max_match = MAX_MATCH;
 
-	if (nargs == 3) {
+	if (nargs >= 3) {
 		buffer = env->is_not_nil(env, args[2]);
 	} else {
 		buffer = false;
+	}
+
+	if (nargs >= 4) {
+		intmax_t n = env->extract_integer(env, args[3]);
+		if (n == -1) {
+			max_match = MAX_MATCH;
+		} else {
+			max_match = (int)n;
+		}
 	}
 
 	pcre *re = pcre_compile(regexp, flags, &errstr, &erroff, NULL);
@@ -71,7 +81,7 @@ pcre_match_string(emacs_env *env, ptrdiff_t nargs, emacs_value args[], bool save
 	ptrdiff_t str_size;
 	char *str = retrieve_string(env, args[1], &str_size);
 	int match[MAX_MATCH];
-	int regno = pcre_exec(re, NULL, str, (size_t)str_size - 1, 0, 0, match, MAX_MATCH);
+	int regno = pcre_exec(re, NULL, str, (size_t)str_size - 1, 0, 0, match, max_match);
 	free(str);
 
 	pcre_free(re);
@@ -144,8 +154,8 @@ emacs_module_init(struct emacs_runtime *ert)
 #define DEFUN(lsym, csym, amin, amax, doc, data) \
 	bind_function (env, lsym, env->make_function(env, amin, amax, csym, doc, data))
 
-	DEFUN("pcre-match-string", Fpcre_match_string, 2, 3, NULL, NULL);
-	DEFUN("pcre-match-string-p", Fpcre_match_string_p, 2, 3, NULL, NULL);
+	DEFUN("pcre-match-string", Fpcre_match_string, 2, 4, NULL, NULL);
+	DEFUN("pcre-match-string-p", Fpcre_match_string_p, 2, 4, NULL, NULL);
 #undef DEFUN
 
 	provide(env, "pcre-core");
