@@ -28,6 +28,6 @@ Works like `looking-at`.
 
 Works like `looking-at-p`.
 
-##### `(pcre-re-search-forward regxp)`
+##### `(pcre-re-search-forward regxp &optional bound non-error count)`
 
 Works like `re-search-forward`.
