@@ -99,14 +99,30 @@ pcre_match_string(emacs_env *env, emacs_value args[], bool savedata, bool buffer
 static emacs_value
 Fpcre_match_string(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 {
-	return pcre_match_string(env, args, true, nargs == 3);
+	bool buffer;
+
+	if (nargs == 3) {
+		buffer = env->is_not_nil(env, args[2]);
+	} else {
+		buffer = false;
+	}
+
+	return pcre_match_string(env, args, true, buffer);
 }
 
 
 static emacs_value
 Fpcre_match_string_p(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 {
-	return pcre_match_string(env, args, false, nargs == 3);
+	bool buffer;
+
+	if (nargs == 3) {
+		buffer = env->is_not_nil(env, args[2]);
+	} else {
+		buffer = false;
+	}
+
+	return pcre_match_string(env, args, false, buffer);
 }
 
 static void
