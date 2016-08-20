@@ -44,7 +44,7 @@ retrieve_string(emacs_env *env, emacs_value str, ptrdiff_t *size)
 }
 
 static emacs_value
-pcre_match_string(emacs_env *env, emacs_value args[], bool savedata, bool buffer)
+pcre_match_string(emacs_env *env, ptrdiff_t nargs, emacs_value args[], bool savedata)
 {
 	ptrdiff_t reg_size;
 	char *regexp = retrieve_string(env, args[0], &reg_size);
@@ -52,6 +52,13 @@ pcre_match_string(emacs_env *env, emacs_value args[], bool savedata, bool buffer
 	int flags = 0;
 	int erroff = 0;
 	const char *errstr = NULL;
+	bool buffer;
+
+	if (nargs == 3) {
+		buffer = env->is_not_nil(env, args[2]);
+	} else {
+		buffer = false;
+	}
 
 	pcre *re = pcre_compile(regexp, flags, &errstr, &erroff, NULL);
 	free(regexp);
@@ -99,30 +106,14 @@ pcre_match_string(emacs_env *env, emacs_value args[], bool savedata, bool buffer
 static emacs_value
 Fpcre_match_string(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 {
-	bool buffer;
-
-	if (nargs == 3) {
-		buffer = env->is_not_nil(env, args[2]);
-	} else {
-		buffer = false;
-	}
-
-	return pcre_match_string(env, args, true, buffer);
+	return pcre_match_string(env, nargs, args, true);
 }
 
 
 static emacs_value
 Fpcre_match_string_p(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 {
-	bool buffer;
-
-	if (nargs == 3) {
-		buffer = env->is_not_nil(env, args[2]);
-	} else {
-		buffer = false;
-	}
-
-	return pcre_match_string(env, args, false, buffer);
+	return pcre_match_string(env, nargs, args, false);
 }
 
 static void
