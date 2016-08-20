@@ -44,7 +44,7 @@ retrieve_string(emacs_env *env, emacs_value str, ptrdiff_t *size)
 }
 
 static emacs_value
-pcre_match_string(emacs_env *env, emacs_value args[], bool savedata)
+pcre_match_string(emacs_env *env, emacs_value args[], bool savedata, bool buffer)
 {
 	ptrdiff_t reg_size;
 	char *regexp = retrieve_string(env, args[0], &reg_size);
@@ -80,10 +80,12 @@ pcre_match_string(emacs_env *env, emacs_value args[], bool savedata)
 	if (match_args == NULL)
 		return env->intern(env, "nil");
 
+	// buffer position starts from 1, while string position starts from 0
+	int pos = buffer ? 1 : 0;
 	for (int i = 0; i < regno; ++i) {
 		size_t idx = i * 2;
-		match_args[idx] = env->make_integer(env, match[idx]);
-		match_args[idx+1] = env->make_integer(env, match[idx+1]);
+		match_args[idx] = env->make_integer(env, match[idx]+pos);
+		match_args[idx+1] = env->make_integer(env, match[idx+1]+pos);
 	}
 
 	emacs_value v = env->funcall(env, env->intern(env, "list"), len, match_args);
@@ -97,14 +99,14 @@ pcre_match_string(emacs_env *env, emacs_value args[], bool savedata)
 static emacs_value
 Fpcre_match_string(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 {
-	return pcre_match_string(env, args, true);
+	return pcre_match_string(env, args, true, nargs == 3);
 }
 
 
 static emacs_value
 Fpcre_match_string_p(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 {
-	return pcre_match_string(env, args, false);
+	return pcre_match_string(env, args, false, nargs == 3);
 }
 
 static void
@@ -135,8 +137,8 @@ emacs_module_init(struct emacs_runtime *ert)
 #define DEFUN(lsym, csym, amin, amax, doc, data) \
 	bind_function (env, lsym, env->make_function(env, amin, amax, csym, doc, data))
 
-	DEFUN("pcre-match-string", Fpcre_match_string, 2, 2, NULL, NULL);
-	DEFUN("pcre-match-string-p", Fpcre_match_string_p, 2, 2, NULL, NULL);
+	DEFUN("pcre-match-string", Fpcre_match_string, 2, 3, NULL, NULL);
+	DEFUN("pcre-match-string-p", Fpcre_match_string_p, 2, 3, NULL, NULL);
 #undef DEFUN
 
 	provide(env, "pcre-core");

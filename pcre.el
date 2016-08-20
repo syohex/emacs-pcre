@@ -26,6 +26,12 @@
 
 (require 'pcre-core)
 
+(defun pcre-looking-at (regexp)
+  (pcre-match-string regexp (buffer-substring-no-properties (point) (point-max)) t))
+
+(defun pcre-looking-at-p (regexp)
+  (pcre-match-string-p regexp (buffer-substring-no-properties (point) (point-max)) t))
+
 (provide 'pcre)
 
 ;;; pcre.el ends here

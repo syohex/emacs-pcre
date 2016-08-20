@@ -41,4 +41,20 @@
     (should ret)
     (should-not (string= (match-string 0 str) str))))
 
+(ert-deftest looking-at ()
+  "PCRE looking-at"
+  (with-temp-buffer
+    (insert "abbc")
+    (goto-char (point-min))
+    (should (pcre-looking-at "a(b{1,2})c$"))
+    (should (string= (match-string 1) "bb"))))
+
+(ert-deftest looking-at-p ()
+  "PCRE looking-at-p"
+  (set-match-data nil)
+  (with-temp-buffer
+    (insert "abbc")
+    (goto-char (point-min))
+    (should (pcre-looking-at-p "a(b{1,})c$"))))
+
 ;;; test.el ends here

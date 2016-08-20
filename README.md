@@ -19,3 +19,11 @@ Works like `string-match`. This function sets `match-data`.
 ##### `(pcre-string-match-p regexp string)`
 
 Works like `string-match-p`. This function does not set `match-data`.
+
+#### `(pcre-looking-at regxp)`
+
+Works like `looking-at`. This function sets `match-data`.
+
+#### `(pcre-looking-at-p regxp)`
+
+Works like `looking-at`. This function does not set `match-data`.
