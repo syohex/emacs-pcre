@@ -38,28 +38,28 @@
            sum it into ret
            finally return ret))
 
-(defun pcre-match-string (regexp str)
+(defun pcre-string-match (regexp str)
   (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
-    (pcre--core-match-string regexp str flags)))
+    (pcre--core-string-match regexp str flags)))
 
-(defun pcre-match-string-p (regexp str)
+(defun pcre-string-match-p (regexp str)
   (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
-    (pcre--core-match-string-p regexp str flags)))
+    (pcre--core-string-match-p regexp str flags)))
 
 (defun pcre-looking-at (regexp)
   (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
-    (pcre--core-match-string
+    (pcre--core-string-match
      regexp (buffer-substring-no-properties (point) (point-max)) flags t)))
 
 (defun pcre-looking-at-p (regexp)
   (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
-    (pcre--core-match-string-p
+    (pcre--core-string-match-p
      regexp (buffer-substring-no-properties (point) (point-max)) flags t)))
 
 (defun pcre-re-search-forward (regexp &optional bound noerror count)
   (let* ((str (buffer-substring-no-properties (point) (or bound (point-max))))
-         (flags (if case-fold-search (pcre--flags '(ignorecase)) 0))
-         (matched (pcre--core-match-string regexp str flags t (or count -1))))
+         (flags (if case-fold-search (pcre--flags '(ignorecase multiline)) (pcre--flags multiline)))
+         (matched (pcre--core-string-match regexp str flags t (or count -1))))
     (if (not matched)
         (unless noerror
           (error "Search failed %s" regexp))

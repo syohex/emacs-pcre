@@ -44,7 +44,7 @@ retrieve_string(emacs_env *env, emacs_value str, ptrdiff_t *size)
 }
 
 static emacs_value
-pcre_match_string(emacs_env *env, ptrdiff_t nargs, emacs_value args[], bool savedata)
+pcre_string_match(emacs_env *env, ptrdiff_t nargs, emacs_value args[], bool savedata)
 {
 	ptrdiff_t reg_size;
 	char *regexp = retrieve_string(env, args[0], &reg_size);
@@ -114,16 +114,16 @@ pcre_match_string(emacs_env *env, ptrdiff_t nargs, emacs_value args[], bool save
 }
 
 static emacs_value
-Fpcre_match_string(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+Fpcre_string_match(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 {
-	return pcre_match_string(env, nargs, args, true);
+	return pcre_string_match(env, nargs, args, true);
 }
 
 
 static emacs_value
-Fpcre_match_string_p(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+Fpcre_string_match_p(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 {
-	return pcre_match_string(env, nargs, args, false);
+	return pcre_string_match(env, nargs, args, false);
 }
 
 static void
@@ -154,8 +154,8 @@ emacs_module_init(struct emacs_runtime *ert)
 #define DEFUN(lsym, csym, amin, amax, doc, data) \
 	bind_function (env, lsym, env->make_function(env, amin, amax, csym, doc, data))
 
-	DEFUN("pcre--core-match-string", Fpcre_match_string, 3, 5, NULL, NULL);
-	DEFUN("pcre--core-match-string-p", Fpcre_match_string_p, 3, 5, NULL, NULL);
+	DEFUN("pcre--core-string-match", Fpcre_string_match, 3, 5, NULL, NULL);
+	DEFUN("pcre--core-string-match-p", Fpcre_string_match_p, 3, 5, NULL, NULL);
 #undef DEFUN
 
 	provide(env, "pcre-core");

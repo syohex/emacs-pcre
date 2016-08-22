@@ -27,14 +27,14 @@
 (ert-deftest string-match ()
   "PCRE string-match"
   (let* ((str "aa-bb")
-         (ret (pcre-match-string "\\A(\\w+)-(b{2,})\\z" str)))
+         (ret (pcre-string-match "\\A(\\w+)-(b{2,})\\z" str)))
     (should ret)
     (should (string= (match-string 0 str) str))
     (should (string= (match-string 1 str) "aa"))
     (should (string= (match-string 2 str) "bb")))
 
   (let* ((str "AA-BB")
-         (ret (pcre-match-string "\\A([a]+)-(b{2,})\\z" str)))
+         (ret (pcre-string-match "\\A([a]+)-(b{2,})\\z" str)))
     (should ret)
     (should (string= (match-string 0 str) str))
     (should (string= (match-string 1 str) "AA"))
@@ -42,14 +42,14 @@
 
   (let ((case-fold-search nil))
     (let* ((str "AA-BB")
-           (ret (pcre-match-string "\\A([a]+)-(b{2,})\\z" str)))
+           (ret (pcre-string-match "\\A([a]+)-(b{2,})\\z" str)))
       (should-not ret))))
 
 (ert-deftest string-match-p ()
   "PCRE string-match-p"
   (set-match-data nil)
   (let* ((str "aa-bb")
-         (ret (pcre-match-string-p "\\A(\\w+)-(b{2,})\\z" str)))
+         (ret (pcre-string-match-p "\\A(\\w+)-(b{2,})\\z" str)))
     (should ret)
     (should-not (string= (match-string 0 str) str))))
 
