@@ -33,8 +33,7 @@
     (multiline . 4))) ;; PCRE_MULTILINE
 
 (defun pcre--flags (flags)
-  (cl-loop with ret = 0
-           for f in flags
+  (cl-loop for f in flags
            when (assoc-default f pcre--flags)
            sum it into ret
            finally return ret))
@@ -57,12 +56,12 @@
     (pcre--core-match-string-p
      regexp (buffer-substring-no-properties (point) (point-max)) flags t)))
 
-(defun pcre-re-search-forward (regexp &optional bound non-error count)
+(defun pcre-re-search-forward (regexp &optional bound noerror count)
   (let* ((str (buffer-substring-no-properties (point) (or bound (point-max))))
          (flags (if case-fold-search (pcre--flags '(ignorecase)) 0))
-         (matched (pcre--core-match-string regexp str 0 t (or count -1))))
+         (matched (pcre--core-match-string regexp str flags t (or count -1))))
     (if (not matched)
-        (unless not-error
+        (unless noerror
           (error "Search failed %s" regexp))
       (goto-char (match-end 0))
       (point))))
