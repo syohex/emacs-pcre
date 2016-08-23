@@ -126,6 +126,26 @@ Fpcre_string_match_p(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *
 	return pcre_string_match(env, nargs, args, false);
 }
 
+static emacs_value
+Fpcre_flag(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+	emacs_value sym = args[0];
+	unsigned int ret;
+
+	if (env->eq(env, sym, env->intern(env, "ignorecase"))) {
+		ret = PCRE_CASELESS;
+	} else if (env->eq(env, sym, env->intern(env, "multiline"))) {
+		ret = PCRE_MULTILINE;
+	} else if (env->eq(env, sym, env->intern(env, "extended"))) {
+		ret = PCRE_EXTENDED;
+	} else {
+		// unsupported flags
+		ret = 0;
+	}
+
+	return env->make_integer(env, (intmax_t)ret);
+}
+
 static void
 bind_function(emacs_env *env, const char *name, emacs_value Sfun)
 {
@@ -156,6 +176,7 @@ emacs_module_init(struct emacs_runtime *ert)
 
 	DEFUN("pcre--core-string-match", Fpcre_string_match, 3, 5, NULL, NULL);
 	DEFUN("pcre--core-string-match-p", Fpcre_string_match_p, 3, 5, NULL, NULL);
+	DEFUN("pcre--core-flag", Fpcre_flag, 1, 1, NULL, NULL);
 #undef DEFUN
 
 	provide(env, "pcre-core");

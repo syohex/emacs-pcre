@@ -27,16 +27,9 @@
 (require 'pcre-core)
 (require 'cl-lib)
 
-(defconst pcre--flags
-  '((ignorecase . 1)  ;; PCRE_CASELESS
-    (extended . 2)    ;; PCRE_EXTENDED
-    (multiline . 4))) ;; PCRE_MULTILINE
-
 (defun pcre--flags (flags)
-  (cl-loop for f in flags
-           when (assoc-default f pcre--flags)
-           sum it into ret
-           finally return ret))
+  (cl-loop for flag in flags
+           sum (pcre--core-flag flag)))
 
 (defun pcre-string-match (regexp str)
   (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
@@ -58,7 +51,9 @@
 
 (defun pcre-re-search-forward (regexp &optional bound noerror count)
   (let* ((str (buffer-substring-no-properties (point) (or bound (point-max))))
-         (flags (if case-fold-search (pcre--flags '(ignorecase multiline)) (pcre--flags multiline)))
+         (flags (if case-fold-search
+                    (pcre--flags '(ignorecase multiline))
+                  (pcre--flags '(multiline))))
          (matched (pcre--core-string-match regexp str flags t (or count -1))))
     (if (not matched)
         (unless noerror
