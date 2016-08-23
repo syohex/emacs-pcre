@@ -42,15 +42,15 @@
 (defun pcre-looking-at (regexp)
   (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
     (pcre--core-string-match
-     regexp (buffer-substring-no-properties (point) (point-max)) flags t)))
+     regexp (buffer-substring-no-properties (point-min) (point-max)) flags t)))
 
 (defun pcre-looking-at-p (regexp)
   (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
     (pcre--core-string-match-p
-     regexp (buffer-substring-no-properties (point) (point-max)) flags t)))
+     regexp (buffer-substring-no-properties (point-min) (point-max)) flags t)))
 
 (defun pcre-re-search-forward (regexp &optional bound noerror count)
-  (let* ((str (buffer-substring-no-properties (point) (or bound (point-max))))
+  (let* ((str (buffer-substring-no-properties (point-min) (or bound (point-max))))
          (flags (if case-fold-search
                     (pcre--flags '(ignorecase multiline))
                   (pcre--flags '(multiline))))

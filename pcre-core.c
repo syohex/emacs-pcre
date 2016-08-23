@@ -43,6 +43,14 @@ retrieve_string(emacs_env *env, emacs_value str, ptrdiff_t *size)
 	return p;
 }
 
+static int
+point(emacs_env *env)
+{
+	emacs_value Qpoint = env->intern(env, "point");
+	emacs_value p = env->funcall(env, Qpoint, 0, NULL);
+	return (int)env->extract_integer(env, p);
+}
+
 static emacs_value
 pcre_string_match(emacs_env *env, ptrdiff_t nargs, emacs_value args[], bool savedata)
 {
@@ -52,11 +60,14 @@ pcre_string_match(emacs_env *env, ptrdiff_t nargs, emacs_value args[], bool save
 	int max_match = MAX_MATCH;
 
 	int flags = env->extract_integer(env, args[2]);
+	int offset;
 
 	if (nargs >= 4) {
 		buffer = env->is_not_nil(env, args[3]);
+		offset = point(env) - 1;
 	} else {
 		buffer = false;
+		offset = 0;
 	}
 
 	if (nargs >= 5) {
@@ -81,7 +92,7 @@ pcre_string_match(emacs_env *env, ptrdiff_t nargs, emacs_value args[], bool save
 	ptrdiff_t str_size;
 	char *str = retrieve_string(env, args[1], &str_size);
 	int match[MAX_MATCH];
-	int regno = pcre_exec(re, NULL, str, (size_t)str_size - 1, 0, 0, match, max_match);
+	int regno = pcre_exec(re, NULL, str, (size_t)str_size - 1, offset, 0, match, max_match);
 	free(str);
 
 	pcre_free(re);
