@@ -17,7 +17,7 @@
   (let (matches)
     (while (pcre-re-search-forward "^\\S+ ([^[:space:]]+)" nil t)
       (push (match-string 1) matches))
-    (reverse matches))) ;; orange blue atom
+    (reverse matches))) ;; '(orange blue atom)
 ```
 
 ## Interfaces
