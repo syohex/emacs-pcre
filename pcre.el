@@ -28,8 +28,9 @@
 (require 'cl-lib)
 
 (defun pcre--flags (flags)
-  (cl-loop for flag in flags
-           sum (pcre--core-flag flag)))
+  (let ((ret 0))
+    (dolist (flag flags ret)
+      (setq ret (logior ret (pcre--core-flag flag))))))
 
 (defun pcre-string-match (regexp str)
   (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
@@ -40,21 +41,33 @@
     (pcre--core-string-match-p regexp str flags)))
 
 (defun pcre-looking-at (regexp)
-  (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
-    (pcre--core-string-match
-     regexp (buffer-substring-no-properties (point-min) (point-max)) flags t)))
+  (let* ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0))
+         (str (buffer-substring-no-properties (point-min) (point-max)))
+         (matched (pcre--core-string-match regexp str flags 1)))
+    (not (null matched))))
 
 (defun pcre-looking-at-p (regexp)
-  (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
-    (pcre--core-string-match-p
-     regexp (buffer-substring-no-properties (point-min) (point-max)) flags t)))
+  (let* ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0))
+         (str (buffer-substring-no-properties (point-min) (point-max)))
+         (matched (pcre--core-string-match-p regexp str flags 1)))
+    (not (null matched))))
+
+(defun pcre-looking-back (regexp &optional bound)
+  (let* ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0))
+         (str (buffer-substring-no-properties (point-min) (or bound (point))))
+         (regexp (if (string-match-p "\\z\\'" regexp)
+                     regexp
+                   (concat regexp "\\z")))
+         (matched (pcre--core-string-match
+                   regexp str (logior flags (pcre--core-flag 'multiline)) -1)))
+    (not (null matched))))
 
 (defun pcre-re-search-forward (regexp &optional bound noerror count)
   (let* ((str (buffer-substring-no-properties (point-min) (or bound (point-max))))
          (flags (if case-fold-search
                     (pcre--flags '(ignorecase multiline))
                   (pcre--flags '(multiline))))
-         (matched (pcre--core-string-match regexp str flags t (or count -1))))
+         (matched (pcre--core-string-match regexp str flags 1 (or count -1))))
     (if (not matched)
         (unless noerror
           (error "Search failed %s" regexp))

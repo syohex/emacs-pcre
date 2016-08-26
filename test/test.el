@@ -69,6 +69,21 @@
     (goto-char (point-min))
     (should (pcre-looking-at-p "a(b{1,})c$"))))
 
+(ert-deftest looking-back ()
+  "PCRE looking-back"
+  (set-match-data nil)
+  (with-temp-buffer
+    (insert "hogehoge")
+    (should (pcre-looking-back "(hoge){2}"))
+    (should (string= (match-string 1) "hoge"))))
+
+(ert-deftest looking-back-with-bound ()
+  "PCRE looking-back with bound"
+  (set-match-data nil)
+  (with-temp-buffer
+    (insert "hogehoge")
+    (should-not (pcre-looking-back "(hoge){2}" 3))))
+
 (ert-deftest re-search-forward ()
   "PCRE re-search-forward"
   (with-temp-buffer

@@ -63,8 +63,16 @@ pcre_string_match(emacs_env *env, ptrdiff_t nargs, emacs_value args[], bool save
 	int offset;
 
 	if (nargs >= 4) {
-		buffer = env->is_not_nil(env, args[3]);
-		offset = point(env) - 1;
+		intmax_t v = env->extract_integer(env, args[3]);
+
+		// 0: search string, not 0: search buffer
+		// >0: forward search <0: backward search
+		buffer = (v != 0);
+		if (v > 0) {
+			offset = point(env) - 1;
+		} else if (v < 0) {
+			offset = 0;
+		}
 	} else {
 		buffer = false;
 		offset = 0;
