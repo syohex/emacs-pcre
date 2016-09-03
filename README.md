@@ -22,26 +22,26 @@
 
 ## Interfaces
 
-##### `(pcre-string-match regexp string)`
+##### `(pcre-string-match regexp string &optional flags)`
 
 Works like `string-match`.
 
-##### `(pcre-string-match-p regexp string)`
+##### `(pcre-string-match-p regexp string &optional flags)`
 
 Works like `string-match-p`.
 
-##### `(pcre-looking-at regxp)`
+##### `(pcre-looking-at regxp &optional flags)`
 
 Works like `looking-at`.
 
-##### `(pcre-looking-at-p regxp)`
+##### `(pcre-looking-at-p regxp &optional flags)`
 
 Works like `looking-at-p`.
 
-##### `(pcre-looking-back regxp &optional bound)`
+##### `(pcre-looking-back regxp &optional bound flags)`
 
 Works like `looking-back`.
 
-##### `(pcre-re-search-forward regxp &optional bound non-error count)`
+##### `(pcre-re-search-forward regxp &optional bound non-error count flags)`
 
 Works like `re-search-forward`.
