@@ -45,6 +45,12 @@
            (ret (pcre-string-match "\\A([a]+)-(b{2,})\\z" str)))
       (should-not ret))))
 
+(ert-deftest string-with-flags ()
+  "PCRE string-match"
+  (let* ((str "aa\nbb\ncc")
+         (ret (pcre-string-match ".*" str '(dotall multiline))))
+    (should (string= (match-string 0 str) str))))
+
 (ert-deftest string-match-p ()
   "PCRE string-match-p"
   (set-match-data nil)
