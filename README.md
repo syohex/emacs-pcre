@@ -45,3 +45,12 @@ Works like `looking-back`.
 ##### `(pcre-re-search-forward regxp &optional bound non-error count flags)`
 
 Works like `re-search-forward`.
+
+### flags argument
+
+Following flags are supporeted now
+
+- `ignorecase` : ignore case matching. However pcre.el is set this flag by current `case-fold-search`
+- `multiline` : match for multiple line strings
+- `dotall` : `.` matches all charactres including newline
+- `extended`: white space data in regexp is ignored
