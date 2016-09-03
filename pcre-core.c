@@ -145,26 +145,41 @@ Fpcre_string_match_p(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *
 	return pcre_string_match(env, nargs, args, false);
 }
 
-static emacs_value
-Fpcre_flag(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+static bool
+case_fold_search(emacs_env *env)
 {
-	emacs_value sym = args[0];
-	unsigned int ret;
+	emacs_value args[] = {env->intern(env, "case-fold-search")};
+	emacs_value ret = env->funcall(env, env->intern(env, "symbol-value"), 1, args);
 
-	if (env->eq(env, sym, env->intern(env, "ignorecase"))) {
-		ret = PCRE_CASELESS;
-	} else if (env->eq(env, sym, env->intern(env, "multiline"))) {
-		ret = PCRE_MULTILINE;
-	} else if (env->eq(env, sym, env->intern(env, "dotall"))) {
-		ret = PCRE_DOTALL
-	} else if (env->eq(env, sym, env->intern(env, "extended"))) {
-		ret = PCRE_EXTENDED;
-	} else {
-		// unsupported flags
-		ret = 0;
+	return env->is_not_nil(env, ret);
+}
+
+static emacs_value
+Fpcre_flags(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+	emacs_value syms = args[0];
+	unsigned long flags;
+
+	flags = case_fold_search(env) ? PCRE_CASELESS : 0;
+
+	size_t len = (size_t)env->vec_size(env, syms);
+	for (size_t i = 0; i < len; ++i) {
+		emacs_value sym = env->vec_get(env, syms, i);
+
+		if (env->eq(env, sym, env->intern(env, "ignorecase"))) {
+			flags |= PCRE_CASELESS;
+		} else if (env->eq(env, sym, env->intern(env, "multiline"))) {
+			flags |= PCRE_MULTILINE;
+		} else if (env->eq(env, sym, env->intern(env, "dotall"))) {
+			flags |= PCRE_DOTALL;
+		} else if (env->eq(env, sym, env->intern(env, "extended"))) {
+			flags |= PCRE_EXTENDED;
+		} else {
+			// unsupported flags
+		}
 	}
 
-	return env->make_integer(env, (intmax_t)ret);
+	return env->make_integer(env, (intmax_t)flags);
 }
 
 static void
@@ -197,7 +212,7 @@ emacs_module_init(struct emacs_runtime *ert)
 
 	DEFUN("pcre--core-string-match", Fpcre_string_match, 3, 5, NULL, NULL);
 	DEFUN("pcre--core-string-match-p", Fpcre_string_match_p, 3, 5, NULL, NULL);
-	DEFUN("pcre--core-flag", Fpcre_flag, 1, 1, NULL, NULL);
+	DEFUN("pcre--core-flags", Fpcre_flags, 1, 1, NULL, NULL);
 #undef DEFUN
 
 	provide(env, "pcre-core");

@@ -28,46 +28,39 @@
 (require 'cl-lib)
 
 (defun pcre--flags (flags)
-  (let ((ret 0))
-    (dolist (flag flags ret)
-      (setq ret (logior ret (pcre--core-flag flag))))))
+  (cl-assert (listp flags))
+  (let ((vflags (apply #'vector flags)))
+    (pcre--core-flags vflags)))
 
-(defun pcre-string-match (regexp str)
-  (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
-    (pcre--core-string-match regexp str flags)))
+(defun pcre-string-match (regexp str &optional flags)
+  (pcre--core-string-match regexp str (pcre--flags flags)))
 
-(defun pcre-string-match-p (regexp str)
-  (let ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0)))
-    (pcre--core-string-match-p regexp str flags)))
+(defun pcre-string-match-p (regexp str &optional flags)
+  (pcre--core-string-match-p regexp str (pcre--flags flags)))
 
-(defun pcre-looking-at (regexp)
-  (let* ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0))
-         (str (buffer-substring-no-properties (point-min) (point-max)))
-         (matched (pcre--core-string-match regexp str flags 1)))
+(defun pcre-looking-at (regexp &optional flags)
+  (let* ((str (buffer-substring-no-properties (point-min) (point-max)))
+         (matched (pcre--core-string-match regexp str (pcre--flags flags) 1)))
     (not (null matched))))
 
-(defun pcre-looking-at-p (regexp)
-  (let* ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0))
-         (str (buffer-substring-no-properties (point-min) (point-max)))
-         (matched (pcre--core-string-match-p regexp str flags 1)))
+(defun pcre-looking-at-p (regexp &optional flags)
+  (let* ((str (buffer-substring-no-properties (point-min) (point-max)))
+         (matched (pcre--core-string-match-p regexp str (pcre--flags flags) 1)))
     (not (null matched))))
 
-(defun pcre-looking-back (regexp &optional bound)
-  (let* ((flags (if case-fold-search (pcre--flags '(ignorecase)) 0))
-         (str (buffer-substring-no-properties (point-min) (or bound (point))))
+(defun pcre-looking-back (regexp &optional bound flags)
+  (let* ((str (buffer-substring-no-properties (point-min) (or bound (point))))
          (regexp (if (string-match-p "\\z\\'" regexp)
                      regexp
                    (concat regexp "\\z")))
          (matched (pcre--core-string-match
-                   regexp str (logior flags (pcre--core-flag 'multiline)) -1)))
+                   regexp str (pcre--flags (cons 'multiline flags)) -1)))
     (not (null matched))))
 
-(defun pcre-re-search-forward (regexp &optional bound noerror count)
+(defun pcre-re-search-forward (regexp &optional bound noerror count flags)
   (let* ((str (buffer-substring-no-properties (point-min) (or bound (point-max))))
-         (flags (if case-fold-search
-                    (pcre--flags '(ignorecase multiline))
-                  (pcre--flags '(multiline))))
-         (matched (pcre--core-string-match regexp str flags 1 (or count -1))))
+         (matched (pcre--core-string-match
+                   regexp str (pcre--flags (cons 'multiline flags)) 1 (or count -1))))
     (if (not matched)
         (unless noerror
           (error "Search failed %s" regexp))
