@@ -154,7 +154,9 @@ Fpcre_flag(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 	if (env->eq(env, sym, env->intern(env, "ignorecase"))) {
 		ret = PCRE_CASELESS;
 	} else if (env->eq(env, sym, env->intern(env, "multiline"))) {
-		ret = PCRE_MULTILINE | PCRE_DOTALL;
+		ret = PCRE_MULTILINE;
+	} else if (env->eq(env, sym, env->intern(env, "dotall"))) {
+		ret = PCRE_DOTALL
 	} else if (env->eq(env, sym, env->intern(env, "extended"))) {
 		ret = PCRE_EXTENDED;
 	} else {
