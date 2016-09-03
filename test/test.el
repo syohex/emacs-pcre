@@ -46,9 +46,13 @@
       (should-not ret))))
 
 (ert-deftest string-with-flags ()
-  "PCRE string-match"
+  "PCRE string-match with flags argument"
   (let* ((str "aa\nbb\ncc")
          (ret (pcre-string-match ".*" str '(dotall multiline))))
+    (should (string= (match-string 0 str) str)))
+
+  (let* ((str "aabbcc")
+         (ret (pcre-string-match "aa    bb     cc" str '(extended))))
     (should (string= (match-string 0 str) str))))
 
 (ert-deftest string-match-p ()
