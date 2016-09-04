@@ -19,7 +19,7 @@ pcre-core.o: pcre-core.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	-rm -f pcre-core.so pcre-core.o
+	-rm -f pcre-core.so pcre-core.o pcre.elc
 
 test:
 	$(EMACS) -Q -batch -L . $(LOADPATH) \
